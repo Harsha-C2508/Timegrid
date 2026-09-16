@@ -15,11 +15,10 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
-        fromRenderService:
+        fromService:
           type: web
           name: timegrid
           property: host
-          prefix: https://
       - key: DB_CONNECTION
         value: pgsql
       - key: DATABASE_URL
