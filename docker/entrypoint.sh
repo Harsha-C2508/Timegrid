@@ -23,11 +23,15 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     chmod 664 database/database.sqlite
 fi
 
-# Generate app key if not set
-if [ -z "$APP_KEY" ]; then
-    php artisan key:generate --force
-    export APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)
-fi
+# Generate app key if missing or not in valid Laravel format (base64:...)
+case "$APP_KEY" in
+    base64:*) ;; # valid Laravel key — keep it
+    *)
+        echo "APP_KEY missing or invalid ('$APP_KEY'), generating a new one..."
+        php artisan key:generate --force
+        export APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)
+        ;;
+esac
 
 # Render Nginx config with dynamic PORT
 sed "s/\${PORT}/$PORT/g" /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf
