@@ -10,14 +10,10 @@ if [ ! -f .env ]; then
     cp .env.example .env 2>/dev/null || touch .env
 fi
 
-# Parse DATABASE_URL if provided (Render, Railway, etc.)
+# Pass DATABASE_URL to Laravel's native URL parser (handles query params safely)
 if [ -n "$DATABASE_URL" ]; then
     export DB_CONNECTION="pgsql"
-    export DB_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
-    export DB_PORT=$(echo "$DATABASE_URL" | sed -n 's|.*:\([0-9]*\)/.*|\1|p')
-    export DB_DATABASE=$(echo "$DATABASE_URL" | sed -n 's|.*/\([^?]*\).*|\1|p')
-    export DB_USERNAME=$(echo "$DATABASE_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
-    export DB_PASSWORD=$(echo "$DATABASE_URL" | sed -n 's|.*://[^:]*:\([^@]*\)@.*|\1|p')
+    export DB_URL="$DATABASE_URL"
 fi
 
 # Create SQLite database if using sqlite driver
